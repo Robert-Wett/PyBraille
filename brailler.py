@@ -1,5 +1,5 @@
 class Brailler(object):
-    """description of class"""
+    """Returns the English Braille representation of text"""
 
     def __init__(self, text=None):
         if text is None:
