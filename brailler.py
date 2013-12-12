@@ -7,8 +7,6 @@ class Brailler(object):
         """
         Create a new instance with the default configuration settings
         """
-        if text is None:
-            text = ""
         self.text = text
         self.abc = "abcdefghijklmnopqrstuvwxyz\t"
         self.base  = \
@@ -37,20 +35,23 @@ class Brailler(object):
         return delim + delim.join(string[i:i + length]\
              for i in range(0,len(string),length)) + delim
 
-    def setdict(raised=self.raised, lowered=self.lowered):
+    def setdict(raised=self.raised, lowered=self.lowered, returndict=False):
         """
         Set the default dictionary to use for translations.
         """
-        pass
 
-    def newdict(raised, lowered, bmap=self.basedict):
+        self.basedict = self.newdict(raised, lowered)
+        if returndict:
+            return self.basedict
+
+    def newdict(raised, lowered):
         """
         Return a list of English Braille representations of A-Z
         """
         return {k:v for (k, v) in \
-                zip(self.abc, [x.replace("O", raised).replace(".", lowered) for x in bmap])}
+                zip(self.abc, [x.replace("O", raised).replace(".", lowered) for x in self.basemap])}
 
-    def print(self, *args, label=False):
+    def print(self, *args, delimlabel=False):
         """Print out the English Braille representation. Equivalent to the str() method.
 
            Keyword arguments:
@@ -60,31 +61,25 @@ class Brailler(object):
         """
         if self.braille is None:
             return None
+
         if label:
             print("Translating '", self.text, "' to braille, with ", lname, sep='')
         if args:
             for line in ["".join(x) for x in args]:
-               print(line)
-        print("{0:3}".format(pad("".join(r1), delim=delimchar)), 
-              "{0:3}".format(pad("".join(r2), delim=delimchar)), 
-              "{0:3}".format(pad("".join(r3), delim=delimchar)), 
-              "{0:3}".format(pad("".join(r4), delim=delimchar)), 
-              sep="\n", end="\n\n")
+                 print(line)
+        for row in self.braille:
+            print("{0:3}".format(pad("".join(row), delim=delimchar)))
 
-    def get_braille(sentence, *args, bmap=self.basedict, 
-                    delimchar=self.delimchar, lname=self.baselabel, 
-                    ljust=self.leftjust):
+    def get_braille(sentence=this.text, bmap=self.basedict, 
+                    lname=self.baselabel, ljust=self.leftjust):
         """Get the English Braille representation of a string.
 
            Keyword arguments:
            `sentence`  -- The string to translate into braille.
-           `*args`     -- Additional text that you wish to display above the 
-                          tranlated braille.
            `bmap`      -- This is the 'Braille Map' to be used for the braille
-                          representation. If none is passed, a new one is created
+                          representation. If none is passed, and no default map
+                          is set then a new one is created
                           using "O" for raised and "." for lowered characters.
-           `delimchar` -- The character placed in between each letter. This character
-                          will essentially "frame" the braille. Default is " ".
            `ljust`     -- Left justify the characters above the braille.
 
         """
@@ -93,11 +88,11 @@ class Brailler(object):
         sentence = re.sub(r'[^A-Za-z\s]', "", sentence).rstrip()
         for idx, c in enumerate(sentence.lower()):
            if ljust:
-               r1+=sentence[c]+" "
+               r1.append(sentence[c]+" ")
            else:
-               r1+=" "+sentence[c]
+               r1.append(" "+sentence[c])
            translated = re.findall('..', bmap[c])
-           r2+=translated[0]
-           r3+=translated[1]
-           r4+=translated[2]
+           r2.append(translated[0])
+           r3.append(translated[1])
+           r4.append(translated[2])
         self.braille = r1, r2, r3, r4
