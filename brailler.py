@@ -1,5 +1,7 @@
 class Brailler(object):
-    """Returns the English Braille representation of text"""
+    """
+    Returns the English Braille representation of text
+    """
 
     def __init__(self, text=None):
         if text is None:
@@ -13,7 +15,7 @@ class Brailler(object):
         "O...O.", "O.O.O.", "OO..O.", "OO.OO.", "O..OO.",
         "OOO.O.", "OOOOO.", "O.OOO.", ".OO.O.", ".OOOO.",
         "O...OO", "O.O.OO", ".OOO.O", "OO..OO", "OO.OOO",
-        "O..OOO", "\t\t\t\t\t\t"]
+        "O..OOO", "\t"*6]
         self.basedict  = self.newdict("O", ".")
         self.baselabel = "the English Braille system"
         self.leftjust  = True
@@ -22,7 +24,9 @@ class Brailler(object):
         self.braille   = None
 
     def pad(string, length=self.padlen, delim=self.delimchar):
-        """Take a string and add a specified character every nth index"""
+        """
+        Take a string and add a specified character every nth index
+        """
         return delim + delim.join(string[i:i + length]\
              for i in range(0,len(string),length)) + delim
 
