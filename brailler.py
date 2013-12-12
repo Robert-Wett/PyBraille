@@ -70,7 +70,7 @@ class Brailler(object):
         for row in self.braille:
             print("{0:3}".format(pad("".join(row), delim=delimchar)))
 
-    def get_braille(sentence=this.text, bmap=self.basedict, 
+    def get_braille(sentence=self.text, bmap=self.basedict, 
                     lname=self.baselabel, ljust=self.leftjust):
         """Get the English Braille representation of a string.
 
