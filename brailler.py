@@ -1,98 +1,134 @@
+import re
+
 class Brailler(object):
     """
     Utility class to convert English text into Braille using the English Braille system.
     """
 
-    def __init__(self, text=None):
+    def __init__(self, text=None, print=False):
         """
         Create a new instance with the default configuration settings
         """
+        if text is None:
+            text = "Braille"
+
         self.text = text
-        self.abc = "abcdefghijklmnopqrstuvwxyz\t"
+        self.abc = "abcdefghijklmnopqrstuvwxyz "
         self.base  = \
         ["O.....", "O.O...", "OO....", "OO.O..", "O..O..", 
         "OOO...", "OOOO..", "O.OO..", ".OO...", ".OOO..",
         "O...O.", "O.O.O.", "OO..O.", "OO.OO.", "O..OO.",
         "OOO.O.", "OOOOO.", "O.OOO.", ".OO.O.", ".OOOO.",
         "O...OO", "O.O.OO", ".OOO.O", "OO..OO", "OO.OOO",
-        "O..OOO", "\t"*6]
-        self.basedict  = self.newdict("O", ".")
+        "O..OOO", "      "]
+        self.basedict  = self.newdict("O", ".") 
         self.baselabel = "the English Braille system"
         self.leftjust  = True
-        self.delimchar = " "
+        self.delim     = " "
         self.padlen    = 2
-        self.braille   = None
+        self.braille   = self.tobraille(self.text, isinit=True, print=print)
 
-    def pad(string, length=self.padlen, delim=self.delimchar):
-        """Take a string and add a specified character every n'th index
 
-           Keyword arguments:
-           `string` -- String to apply the pad operation on.
-           `length` -- Interval in which to add the `delim` character.
-           `delim`  -- Character to use as the padder, defaults to a space.
-
+    # def pad(self, string, length=self.padlen, delim=self.delim):
+    def pad(self, string, delim=None):
         """
-        return delim + delim.join(string[i:i + length]\
-             for i in range(0,len(string),length)) + delim
+        Take a string and add a specified character every n'th index
+        """
+        if delim is None:
+            delim = self.delim
 
-    def setdict(raised=self.raised, lowered=self.lowered, returndict=False):
+        return delim + delim.join(string[i:i + self.padlen]\
+             for i in range(0,len(string),self.padlen)) + delim
+
+
+    def setdict(self, raised, lowered, update=True):
         """
         Set the default dictionary to use for translations.
         """
-
         self.basedict = self.newdict(raised, lowered)
-        if returndict:
-            return self.basedict
+        if update:
+            self.tobraille(print=False)
 
-    def newdict(raised, lowered):
+
+    def newdict(self, raised, lowered):
         """
         Return a list of English Braille representations of A-Z
         """
         return {k:v for (k, v) in \
-                zip(self.abc, [x.replace("O", raised).replace(".", lowered) for x in self.basemap])}
+                zip(self.abc, [x.replace("O", raised). \
+                    replace(".", lowered) for x in self.base])}
 
-    def print(self, *args, delimlabel=False):
-        """Print out the English Braille representation. Equivalent to the str() method.
 
-           Keyword arguments:
-           `*args`  -- Each argument will be printed below the `label`, and above the braille.
-           `label`  -- `True` to print an explanation or title string.
-
+    def str(self, delim=None):
+        """
+        Print out the English Braille representation. Equivalent to the str() method.
         """
         if self.braille is None:
             return None
+        if delim is None or (len(delim) != 1):
+            delim = self.delim
+        # print("{0:3}".format(self.pad("".join(self.braille[0]), delimchar=self.delim)), 
+        print("\n")
+        for idx, row in enumerate(self.braille):
+            if idx in [0, 1]:
+                print("{0:2}".format(self.pad("".join(row))))
+            else:
+                print("{0:2}".format(self.pad("".join(row), delim)))
+        print("\n")
 
-        if label:
-            print("Translating '", self.text, "' to braille, with ", lname, sep='')
-        if args:
-            for line in ["".join(x) for x in args]:
-                 print(line)
-        for row in self.braille:
-            print("{0:3}".format(pad("".join(row), delim=delimchar)))
 
-    def get_braille(sentence=self.text, bmap=self.basedict, 
-                    lname=self.baselabel, ljust=self.leftjust):
+    def tobraille(self, sentence=None, bmap=None, isinit=False,
+                    delim=None, ljust=None, print=True):
         """Get the English Braille representation of a string.
 
            Keyword arguments:
            `sentence`  -- The string to translate into braille.
            `bmap`      -- This is the 'Braille Map' to be used for the braille
-                          representation. If none is passed, and no default map
-                          is set then a new one is created
+                          representation. If none is passed, a new one is created
                           using "O" for raised and "." for lowered characters.
+           `isinit`    -- True is passed on object initialization
+           `delim`     -- The character to use as a delimiter
            `ljust`     -- Left justify the characters above the braille.
+           `print`     -- Call self.str on the current sentence
 
         """
-        r1, r2, r3, r4 = [], [], [], []
+        if bmap is None:
+            if self.basedict is None:
+                print("No dictionary set.")
+                pass
+            bmap = self.basedict
+        if sentence is None:
+            if self.text is None:
+                print("No text to braille!")
+                pass
+            sentence = self.text
+        if ljust is None:
+            ljust = self.leftjust
+        if delim is None:
+            delim = self.delim
+
+        r1, r2, r3, r4, r5 = [], [], [], [], []
         # Remove all non alpha numbers or spaces
         sentence = re.sub(r'[^A-Za-z\s]', "", sentence).rstrip()
+        self.text = sentence
+
         for idx, c in enumerate(sentence.lower()):
-           if ljust:
-               r1.append(sentence[c]+" ")
-           else:
-               r1.append(" "+sentence[c])
-           translated = re.findall('..', bmap[c])
-           r2.append(translated[0])
-           r3.append(translated[1])
-           r4.append(translated[2])
-        self.braille = r1, r2, r3, r4
+            if ljust:
+                r1.append("%s " % sentence[idx])
+            else:
+                r1.append(" %s" % sentence[idx])
+            translated = re.findall('..', bmap[c])
+            # Don't add underscores if it's a space
+            if bmap[c] == "      ":
+                r2.append("  ")
+            else:
+                r2.append("__")
+            r3.append(translated[0])
+            r4.append(translated[1])
+            r5.append(translated[2])
+        if isinit:
+            return r1, r2, r3, r4, r5
+        else:
+            self.braille = r1, r2, r3, r4, r5
+        if print: 
+            self.str(delim=delim)
