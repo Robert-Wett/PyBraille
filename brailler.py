@@ -31,8 +31,8 @@ class Brailler(object):
         self.padlen    = 2
         self.braille   = self.tobraille(self.text, isinit=True, print=print)
         # We'll go christmas motif
-        self.fore      = Fore.RED
-        self.back      = Back.GREEN
+        self.f      = Fore.BLACK
+        self.b      = Back.YELLOW
 
 
     # def pad(self, string, length=self.padlen, delim=self.delim):
@@ -74,14 +74,12 @@ class Brailler(object):
         if delim is None or (len(delim) != 1):
             delim = self.delim
         # print("{0:3}".format(self.pad("".join(self.braille[0]), delimchar=self.delim)), 
-        print("\n")
         for idx, row in enumerate(self.braille):
             if idx in [0, 1]:
-                print(self.fore+self.back+ "{0:2}".format(self.pad("".join(row))))
+                print(self.f+self.b+ "{0:2}".format(self.pad("".join(row), delim=" ")))
             else:
                 print(Fore.RESET+Back.RESET+ "{0:2}".format(self.pad("".join(row), delim)))
         print("\n")
-
 
     def tobraille(self, sentence=None, bmap=None, isinit=False,
                     delim=None, ljust=None, print=True):
@@ -108,11 +106,9 @@ class Brailler(object):
                 print("No text to braille!")
                 pass
             sentence = self.text
-
         if ljust is None:
             ljust = self.leftjust
-        self.ljust = ljust
-
+        self.leftjust = ljust
         if delim is None:
             delim = self.delim
         self.delim = delim
