@@ -25,7 +25,7 @@ class Brailler(object):
         self.padlen    = 2
         self.braille   = None
 
-    def pad(string, length=self.padlen, delim=self.delimchar):
+    def pad(self, string, length=self.padlen, delim=self.delimchar):
         """Take a string and add a specified character every n'th index
 
            Keyword arguments:
