@@ -17,7 +17,7 @@ class Brailler(object):
     Utility class to convert English text into Braille using the English Braille system.
     """
 
-    def __init__(self, text=None, print=False):
+    def __init__(self, text=None, print_braille=False):
         """
         Create a new instance with the default configuration settings
         """
@@ -38,7 +38,7 @@ class Brailler(object):
         self.leftjust  = True
         self.delim     = " "
         self.padlen    = 2
-        self.braille   = self.tobraille(self.text, isinit=True, print=print)
+        self.braille   = self.tobraille(self.text, isinit=True, print_braille=print_braille)
         # We'll go christmas motif
         self.f      = Fore.BLACK
         self.b      = Back.YELLOW
@@ -62,7 +62,7 @@ class Brailler(object):
         """
         self.basedict = self.newdict(raised, lowered)
         if update:
-            self.tobraille(print=False)
+            self.tobraille(print_braille=False)
 
 
     def newdict(self, raised, lowered):
@@ -85,13 +85,13 @@ class Brailler(object):
         # print("{0:3}".format(self.pad("".join(self.braille[0]), delimchar=self.delim)), 
         for idx, row in enumerate(self.braille):
             if idx in [0, 1]:
-                print(self.f+self.b+ "{0:2}".format(self.pad("".join(row), delim=" ")))
+                print self.f+self.b+ "{0:2}".format(self.pad("".join(row), delim=" "))
             else:
-                print(Fore.RESET+Back.RESET+ "{0:2}".format(self.pad("".join(row), delim)))
-        print("\n")
+                print Fore.RESET+Back.RESET+ "{0:2}".format(self.pad("".join(row), delim))
+        print "\n"
 
     def tobraille(self, sentence=None, bmap=None, isinit=False,
-                    delim=None, ljust=None, print=True):
+                    delim=None, ljust=None, print_braille=True):
         """Get the English Braille representation of a string.
 
            Keyword arguments:
@@ -107,12 +107,12 @@ class Brailler(object):
         """
         if bmap is None:
             if self.basedict is None:
-                print("No dictionary set.")
+                print "No dictionary set."
                 pass
             bmap = self.basedict
         if sentence is None:
             if self.text is None:
-                print("No text to braille!")
+                print "No text to braille!"
                 pass
             sentence = self.text
         if ljust is None:
@@ -145,5 +145,5 @@ class Brailler(object):
             return r1, r2, r3, r4, r5
         else:
             self.braille = r1, r2, r3, r4, r5
-        if print: 
+        if print_braille: 
             self.str(delim=delim)
